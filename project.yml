@@ -1,11 +1,11 @@
-name: MyReader
+name: my-sensein-book
 options:
-  bundleIdPrefix: com.example
+  bundleIdPrefix: com.sensein
   deploymentTarget:
     iOS: "16.0"
   createIntermediateGroups: true
 targets:
-  MyReader:
+  my-sensein-book:
     type: application
     platform: iOS
     sources:
@@ -13,16 +13,17 @@ targets:
       - path: Resources
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.myreader
+        PRODUCT_BUNDLE_IDENTIFIER: com.sensein.book
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
         SWIFT_VERSION: "5.0"
         GENERATE_INFOPLIST_FILE: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         TARGETED_DEVICE_FAMILY: "1,2"
-        INFOPLIST_KEY_CFBundleDisplayName: Books
-        INFOPLIST_KEY_CFBundleName: Books
-        MARKETING_DISPLAY_NAME: My.Sensein.Books
+        INFOPLIST_KEY_CFBundleDisplayName: book
+        INFOPLIST_KEY_CFBundleName: book
+        MARKETING_DISPLAY_NAME: My.Sensein.Book
+        INFOPLIST_KEY_NSHumanReadableCopyright: "© Kravitz Geroge"
         INFOPLIST_KEY_UIFileSharingEnabled: YES
         INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES

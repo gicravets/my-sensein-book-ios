@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct MyReaderApp: App {
+struct MySenseinBookApp: App {
     @StateObject private var store = LibraryStore()
     @StateObject private var theme = ThemeManager()
 

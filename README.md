@@ -1,61 +1,48 @@
-# MyReader
+# my-sensein-book-ios
 
-Минималистичная читалка EPUB для iOS (SwiftUI), сделанная по образцу UX eBoox — собственный движок, без сторонних зависимостей.
+iOS-приложение **My.Sensein.Book** — читалка EPUB/FB2 на SwiftUI с собственным движком (без сторонних зависимостей). Часть проекта **my-sensein-book**.
+
+- **Продукт:** My.Sensein.Book
+- **Имя на иконке:** book
+- **Разработчик:** Kravitz Geroge
+- **Bundle ID:** `com.sensein.book`
 
 ## Запуск
 
 ```bash
-cd ReaderApp
-xcodegen generate          # сгенерировать MyReader.xcodeproj
-open MyReader.xcodeproj     # открыть в Xcode и нажать Run (⌘R)
+xcodegen generate              # сгенерировать my-sensein-book.xcodeproj
+open my-sensein-book.xcodeproj # открыть в Xcode и нажать Run (⌘R)
 ```
 
 Требуется Xcode 16+ и [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
-Цель сборки — iOS 16+. На первом запуске в библиотеку импортируется пример книги
+Цель сборки — iOS 16+. При первом запуске в библиотеку импортируется пример книги
 (`Resources/Sample.epub`, Pride and Prejudice, public domain).
 
-Интерфейс намеренно повторяет UX eBoox 2.23.3.
+Сборка из командной строки:
 
-## Что умеет (MVP)
+```bash
+xcodebuild -project my-sensein-book.xcodeproj -scheme my-sensein-book \
+  -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build
+```
 
-- **3 вкладки** (плавающий таб-бар): Мои книги · Добавить книги · Оценить.
-- **Библиотека**: фиолетовый хедер, карточка «Вы недавно читали», переключатель
-  Книги/Полки, список с обложкой, автором и прогрессом, импорт EPUB через «Файлы», удаление.
-- **Два формата** без зависимостей: **EPUB** (`MiniZip` распаковывает zip, DEFLATE через
-  системный `Compression`; `EpubParser` читает OPF/spine/TOC/обложку) и **FB2** (`Fb2Parser`
-  конвертирует FictionBook в HTML-главы; `BookParser` выбирает парсер по расширению). Новые
-  книги открываются с первой содержательной главы.
-- **Ридер**: `WKWebView` с выключкой по ширине и переносами; **постраничный** режим
-  (CSS-колонки) с листанием тапом и **свайпом** (слайд-анимация) или **режим прокрутки**;
-  круглые кнопки назад/закладка, прогресс с точками, панель Содержание/Настройки/Поиск.
-- **Поиск по всей книге**: регистро- и ё/е-независимый, со сниппетами и переходом к
-  совпадению (подсветка жёлтым).
-- **Закладки и выделения**: 3 цвета выделений (тулбар по выделению текста), закладки текущей
-  позиции; вкладки Оглавление / Закладки / Выделения; всё сохраняется.
-- **Настройки чтения**: 4 темы (белая/сепия/ночь/AMOLED), размер шрифта, поля, межстрочный
-  интервал, яркость, режим прокрутки.
-- **Состояние**: позиция (глава + доля главы + %), закладки и выделения сохраняются в
-  `Documents/library.json`. Локаторы устойчивы к рефлоу: позиция — по доле, поиск/выделения —
-  по тексту и номеру вхождения.
+## Что умеет
+
+- Библиотека: импорт EPUB/FB2, обложки, прогресс, полки, выбор/сортировка/поиск, признак «прочитано».
+- Читалка: постраничная вёрстка (WKWebView, собственная пагинация), темы, размер шрифта.
+- Закладки и выделения с заметками (reflow-safe локаторы).
 
 ## Структура
 
 ```
 Sources/
-  App/        MyReaderApp.swift          — точка входа
-  Core/       MiniZip, XMLTree,          — zip + XML
-              EpubParser, LibraryStore   — парсер EPUB + хранилище
-  Models/     Book.swift                 — модель книги, пути
-  UI/         LibraryView, ReaderScreen, — экраны
-              ReaderView, ReaderWebView,
-              ReaderController, Theme
-Resources/    Sample.epub
+  App/            # точка входа (MySenseinBookApp), RootTabView
+  Models/         # Book, Bookmark, Highlight, LibraryStore, …
+  ...
+Resources/        # Sample.epub и ассеты
+project.yml       # спецификация XcodeGen (источник истины для .xcodeproj)
 ```
 
-## Дальше (бэклог)
+## Связанные репозитории
 
-- Полки (группировка книг) — сейчас вкладка-заглушка.
-- Заметки к выделениям, экспорт цитат.
-- Выбор шрифта (сейчас системный), интерактивный свайп с подтягиванием пальцем.
-- Каталог книг по ссылке.
-- Синхронизация (iCloud / свой бэкенд) — по выбору, по умолчанию офлайн.
+- Бэкенд: [my-sensein-book-backend](https://github.com/gicravets/my-sensein-book-backend)
+- Веб-PWA: [my-sensein-book-frontend](https://github.com/gicravets/my-sensein-book-frontend)

@@ -26,19 +26,24 @@ enum SyncService {
             let remoteTime = parse(r.readProgress?.lastReadAt)
 
             if remoteTime > localTime {
-                // pull: server is newer
+                // pull: server is newer. Use the native locator for precise resume
+                // when it came from a same-engine (iOS) client; else just overall %.
+                let loc = decode(r.readProgress?.clientLocator)
                 store.applyRemoteState(
                     bookID: local.id,
                     progress: r.readProgress?.totalProgression ?? local.progress,
                     isFinished: r.readProgress?.completed ?? local.isFinished,
-                    lastReadAt: remoteTime == .distantPast ? nil : remoteTime
+                    lastReadAt: remoteTime == .distantPast ? nil : remoteTime,
+                    chapterIndex: loc?["c"].map { Int($0) },
+                    chapterFraction: loc?["f"]
                 )
                 result.pulled += 1
             } else if local.lastReadAt != nil || local.progress > 0 || local.isFinished {
                 // push: local is newer (or server has nothing yet)
                 try await client.putProgression(
                     id: r.id, totalProgression: local.progress,
-                    completed: local.isFinished, deviceName: device
+                    completed: local.isFinished, deviceName: device,
+                    clientLocator: encode(["c": local.chapterIndex, "f": local.chapterFraction])
                 )
                 result.pushed += 1
             }

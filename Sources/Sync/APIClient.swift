@@ -76,8 +76,8 @@ struct APIClient {
         return try await send(request("/api/v1/books?size=1000"), as: Page.self).content
     }
 
-    /// Push overall reading state to the server.
-    func putProgression(id: String, totalProgression: Double, completed: Bool, deviceName: String) async throws {
+    /// Push overall reading state to the server (clientLocator = iOS native position).
+    func putProgression(id: String, totalProgression: Double, completed: Bool, deviceName: String, clientLocator: String) async throws {
         let body = try JSONSerialization.data(withJSONObject: [
             "progression": totalProgression,
             "totalProgression": totalProgression,
@@ -85,6 +85,7 @@ struct APIClient {
             "totalPages": 100,
             "completed": completed,
             "deviceName": deviceName,
+            "clientLocator": clientLocator,
         ])
         let req = request("/api/v1/books/\(id)/progression", method: "PUT", body: body)
         _ = try await URLSession.shared.data(for: req)
@@ -139,6 +140,7 @@ struct RemoteProgress: Codable {
     var totalProgression: Double
     var completed: Bool
     var lastReadAt: String?
+    var clientLocator: String?
 }
 
 struct RemoteBook: Codable {

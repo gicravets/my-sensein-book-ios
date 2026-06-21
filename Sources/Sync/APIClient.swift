@@ -89,6 +89,40 @@ struct APIClient {
         let req = request("/api/v1/books/\(id)/progression", method: "PUT", body: body)
         _ = try await URLSession.shared.data(for: req)
     }
+
+    // --- annotations ---
+
+    func getHighlights(bookID: String) async throws -> [RemoteAnnotation] {
+        struct Resp: Decodable { let content: [RemoteAnnotation] }
+        return try await send(request("/api/v1/highlights?bookId=\(bookID)"), as: Resp.self).content
+    }
+
+    func createHighlight(bookID: String, text: String, color: String, note: String, locatorValue: String) async throws {
+        let body = try JSONSerialization.data(withJSONObject: [
+            "bookId": bookID, "text": text, "color": color, "note": note,
+            "locator": ["type": "msb-ios", "value": locatorValue, "progression": 0],
+        ])
+        _ = try await URLSession.shared.data(for: request("/api/v1/highlights", method: "POST", body: body))
+    }
+
+    func getBookmarks(bookID: String) async throws -> [RemoteAnnotation] {
+        struct Resp: Decodable { let content: [RemoteAnnotation] }
+        return try await send(request("/api/v1/bookmarks?bookId=\(bookID)"), as: Resp.self).content
+    }
+
+    func createBookmark(bookID: String, label: String, locatorValue: String, progression: Double) async throws {
+        let body = try JSONSerialization.data(withJSONObject: [
+            "bookId": bookID, "label": label,
+            "locator": ["type": "msb-ios", "value": locatorValue, "progression": progression],
+        ])
+        _ = try await URLSession.shared.data(for: request("/api/v1/bookmarks", method: "POST", body: body))
+    }
+}
+
+struct RemoteAnnotation: Codable {
+    let id: String
+    var text: String?
+    var label: String?
 }
 
 // Server DTOs (subset of the my-sensein-book contract used for sync).

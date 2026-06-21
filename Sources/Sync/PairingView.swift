@@ -85,7 +85,7 @@ struct PairingView: View {
         defer { busy = false }
         do {
             let r = try await SyncService.sync(store: store, config: config)
-            syncInfo = "Совпало: \(r.matched) · отправлено: \(r.pushed) · получено: \(r.pulled)"
+            syncInfo = "Совпало: \(r.matched) · ↑\(r.pushed) ↓\(r.pulled) · аннотаций: \(r.annotations)"
         } catch { self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription }
     }
 

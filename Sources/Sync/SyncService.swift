@@ -4,7 +4,7 @@ import Foundation
 /// between the local library and the server. Books are matched by title+author.
 /// Newest-wins by lastReadAt. Precise chapter position + annotations: later.
 enum SyncService {
-    struct Result { var matched = 0; var pushed = 0; var pulled = 0 }
+    struct Result { var matched = 0; var pushed = 0; var pulled = 0; var annotations = 0 }
 
     @MainActor
     static func sync(store: LibraryStore, config: ServerConfig) async throws -> Result {
@@ -42,8 +42,50 @@ enum SyncService {
                 )
                 result.pushed += 1
             }
+
+            // push annotations (text/note/color shared; iOS locator encoded), dedup by text/label
+            if !local.highlights.isEmpty {
+                let existing = Set((try? await client.getHighlights(bookID: r.id))?.compactMap { $0.text } ?? [])
+                for h in local.highlights where !existing.contains(h.text) {
+                    let loc = encode(["c": h.chapterIndex, "o": h.occurrence])
+                    try? await client.createHighlight(bookID: r.id, text: h.text,
+                        color: colorName(h.colorHex), note: h.note, locatorValue: loc)
+                    result.annotations += 1
+                }
+            }
+            if !local.bookmarks.isEmpty {
+                let existing = Set((try? await client.getBookmarks(bookID: r.id))?.compactMap { $0.label } ?? [])
+                for b in local.bookmarks where !existing.contains(b.label) {
+                    let loc = encode(["c": b.chapterIndex, "f": b.fraction])
+                    try? await client.createBookmark(bookID: r.id, label: b.label,
+                        locatorValue: loc, progression: b.fraction)
+                    result.annotations += 1
+                }
+            }
         }
         return result
+    }
+
+    private static func encode(_ obj: [String: Any]) -> String {
+        guard let d = try? JSONSerialization.data(withJSONObject: obj) else { return "{}" }
+        return String(data: d, encoding: .utf8) ?? "{}"
+    }
+
+    /// Map an iOS highlight hex to the server's named palette (yellow/green/blue/pink/orange).
+    private static func colorName(_ hex: String) -> String {
+        let h = hex.lowercased().replacingOccurrences(of: "#", with: "")
+        guard h.count >= 6, let r = Int(h.prefix(2), radix: 16),
+              let g = Int(h.dropFirst(2).prefix(2), radix: 16),
+              let b = Int(h.dropFirst(4).prefix(2), radix: 16) else { return "yellow" }
+        let palette: [(String, Int, Int, Int)] = [
+            ("yellow", 234, 179, 8), ("green", 34, 197, 94), ("blue", 59, 130, 246),
+            ("pink", 236, 72, 153), ("orange", 249, 115, 22),
+        ]
+        return palette.min { a, c in
+            let da = (a.1-r)*(a.1-r)+(a.2-g)*(a.2-g)+(a.3-b)*(a.3-b)
+            let dc = (c.1-r)*(c.1-r)+(c.2-g)*(c.2-g)+(c.3-b)*(c.3-b)
+            return da < dc
+        }!.0
     }
 
     private static func matchKey(title: String, author: String?) -> String {

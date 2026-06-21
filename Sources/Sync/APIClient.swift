@@ -119,10 +119,19 @@ struct APIClient {
     }
 }
 
+struct RemoteLocator: Codable {
+    var type: String?
+    var value: String?
+    var progression: Double?
+}
+
 struct RemoteAnnotation: Codable {
     let id: String
     var text: String?
     var label: String?
+    var color: String?
+    var note: String?
+    var locator: RemoteLocator?
 }
 
 // Server DTOs (subset of the my-sensein-book contract used for sync).

@@ -43,24 +43,42 @@ enum SyncService {
                 result.pushed += 1
             }
 
-            // push annotations (text/note/color shared; iOS locator encoded), dedup by text/label
-            if !local.highlights.isEmpty {
-                let existing = Set((try? await client.getHighlights(bookID: r.id))?.compactMap { $0.text } ?? [])
-                for h in local.highlights where !existing.contains(h.text) {
-                    let loc = encode(["c": h.chapterIndex, "o": h.occurrence])
-                    try? await client.createHighlight(bookID: r.id, text: h.text,
-                        color: colorName(h.colorHex), note: h.note, locatorValue: loc)
-                    result.annotations += 1
-                }
+            // --- highlights: two-way (dedup by text) ---
+            let remoteHL = (try? await client.getHighlights(bookID: r.id)) ?? []
+            let remoteHLTexts = Set(remoteHL.compactMap { $0.text })
+            let localHLTexts = Set(local.highlights.map { $0.text })
+            for h in local.highlights where !remoteHLTexts.contains(h.text) {        // push
+                try? await client.createHighlight(bookID: r.id, text: h.text,
+                    color: colorName(h.colorHex), note: h.note,
+                    locatorValue: encode(["c": h.chapterIndex, "o": h.occurrence]))
+                result.annotations += 1
             }
-            if !local.bookmarks.isEmpty {
-                let existing = Set((try? await client.getBookmarks(bookID: r.id))?.compactMap { $0.label } ?? [])
-                for b in local.bookmarks where !existing.contains(b.label) {
-                    let loc = encode(["c": b.chapterIndex, "f": b.fraction])
-                    try? await client.createBookmark(bookID: r.id, label: b.label,
-                        locatorValue: loc, progression: b.fraction)
-                    result.annotations += 1
-                }
+            for ra in remoteHL where ra.locator?.type == "msb-ios"                    // pull (iOS-origin only)
+                && !localHLTexts.contains(ra.text ?? "") {
+                guard let text = ra.text, let loc = decode(ra.locator?.value) else { continue }
+                store.addHighlight(bookID: local.id, Highlight(
+                    chapterIndex: loc["c"].map { Int($0) } ?? 0, text: text,
+                    occurrence: loc["o"].map { Int($0) } ?? 0,
+                    colorHex: colorHex(ra.color ?? "yellow"), note: ra.note ?? ""))
+                result.annotations += 1
+            }
+
+            // --- bookmarks: two-way (dedup by label) ---
+            let remoteBM = (try? await client.getBookmarks(bookID: r.id)) ?? []
+            let remoteBMLabels = Set(remoteBM.compactMap { $0.label })
+            let localBMLabels = Set(local.bookmarks.map { $0.label })
+            for b in local.bookmarks where !remoteBMLabels.contains(b.label) {        // push
+                try? await client.createBookmark(bookID: r.id, label: b.label,
+                    locatorValue: encode(["c": b.chapterIndex, "f": b.fraction]), progression: b.fraction)
+                result.annotations += 1
+            }
+            for ra in remoteBM where ra.locator?.type == "msb-ios"                    // pull
+                && !localBMLabels.contains(ra.label ?? "") {
+                guard let label = ra.label, let loc = decode(ra.locator?.value) else { continue }
+                store.addBookmark(bookID: local.id, Bookmark(
+                    chapterIndex: loc["c"].map { Int($0) } ?? 0,
+                    fraction: loc["f"] ?? 0, label: label))
+                result.annotations += 1
             }
         }
         return result
@@ -69,6 +87,22 @@ enum SyncService {
     private static func encode(_ obj: [String: Any]) -> String {
         guard let d = try? JSONSerialization.data(withJSONObject: obj) else { return "{}" }
         return String(data: d, encoding: .utf8) ?? "{}"
+    }
+
+    private static func decode(_ s: String?) -> [String: Double]? {
+        guard let s, let d = s.data(using: .utf8),
+              let obj = try? JSONSerialization.jsonObject(with: d) as? [String: Any] else { return nil }
+        var out: [String: Double] = [:]
+        for (k, v) in obj { if let n = v as? NSNumber { out[k] = n.doubleValue } }
+        return out
+    }
+
+    private static let palette: [(String, String)] = [
+        ("yellow", "#eab308"), ("green", "#22c55e"), ("blue", "#3b82f6"),
+        ("pink", "#ec4899"), ("orange", "#f97316"),
+    ]
+    private static func colorHex(_ name: String) -> String {
+        palette.first { $0.0 == name }?.1 ?? "#eab308"
     }
 
     /// Map an iOS highlight hex to the server's named palette (yellow/green/blue/pink/orange).

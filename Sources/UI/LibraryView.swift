@@ -6,6 +6,8 @@ import UniformTypeIdentifiers
 struct LibraryView: View {
     @EnvironmentObject var store: LibraryStore
     @EnvironmentObject var theme: ThemeManager
+    @EnvironmentObject var serverConfig: ServerConfig
+    @State private var showPairing = false
     @State private var showImporter = false
     @State private var openBook: Book?
     @State private var tab: Section = .books
@@ -105,6 +107,7 @@ struct LibraryView: View {
         .fullScreenCover(item: $openBook) { book in
             ReaderScreen(book: book)
         }
+        .sheet(isPresented: $showPairing) { PairingView() }
         .sheet(item: $infoBook) { BookInfoView(book: $0) }
         .sheet(item: $shelfBook) { ShelfAssignSheet(book: $0) }
         .sheet(item: $openShelf) { ref in
@@ -208,6 +211,10 @@ struct LibraryView: View {
                     }
                     Button { withAnimation { theme.toggle() } } label: {
                         Image(systemName: theme.isDark ? "moon.fill" : "sun.max.fill")
+                            .foregroundStyle(.white)
+                    }
+                    Button { showPairing = true } label: {
+                        Image(systemName: serverConfig.isLinked ? "antenna.radiowaves.left.and.right" : "antenna.radiowaves.left.and.right.slash")
                             .foregroundStyle(.white)
                     }
                     Button { showImporter = true } label: {

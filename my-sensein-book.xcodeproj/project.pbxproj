@@ -14,9 +14,11 @@
 		27E4C0A2C08E3FE85BB98EF2 /* SearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264A0159A50CCE29E224CC42 /* SearchIndex.swift */; };
 		38E207682DB036CDF745D507 /* AnnotationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76928F97D6B9A11205A2D5D5 /* AnnotationsView.swift */; };
 		3CAC146551FCDCBEF8AD14B4 /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC29FEDE10C6E13315802B5E /* Book.swift */; };
+		5A35402C32BF562B6CB9A7EE /* ServerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C15786A4BE1753685B9324A /* ServerConfig.swift */; };
 		5B6FD4E344C3D6B512C4E370 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E824950DB329927DA2B9FA66 /* LibraryView.swift */; };
 		7270DB5DE806E79CD5E1B022 /* BookParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1974773084076A267F34A997 /* BookParser.swift */; };
 		7988FCFCC6011987C9DFBD03 /* Sample2.fb2 in Resources */ = {isa = PBXBuildFile; fileRef = 65BFD234522FF04EED853673 /* Sample2.fb2 */; };
+		7CFFCC64A028FCA6BA5D5AD1 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FD0BE608E50CF4A8E479FB6 /* Keychain.swift */; };
 		7DCA1FDBC951B205B5198CBF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 52F1564B34FD0D079A1F9C76 /* Assets.xcassets */; };
 		8171412BEE0C9FAA96ED1C9A /* AddBooksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F6453B3FE006CB85D8AD31 /* AddBooksView.swift */; };
 		881A52793CA2EDE24828FA6D /* LibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF3AFCE8D3658E14C3A8DE56 /* LibraryStore.swift */; };
@@ -26,9 +28,11 @@
 		A64FC78EFB9521DF38FE5C06 /* ReaderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2325860FB5FDCE2D47DE4EE3 /* ReaderController.swift */; };
 		A72A636B2B1D25267BD8917D /* Fb2Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0898E347AFE1ADBF7D4E226 /* Fb2Parser.swift */; };
 		BD87433D7C20815AC225488F /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E9735A335BDF54E086D0C5 /* Theme.swift */; };
+		C4C59DCD8FC163B8CAA9DFD6 /* PairingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF35382236D78F3C9C07459 /* PairingView.swift */; };
 		CEE2B09C5DEB3244937FC0DD /* CoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8C7ADE8974F56B3664CAF2C /* CoverView.swift */; };
 		DA0FF35984A5573D4D23C45C /* CurlReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E655CB6D519005318A3B0E2 /* CurlReaderView.swift */; };
 		E407DE5CBFDDFBD698D956B4 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A46F670C8155C105BFC658 /* RootTabView.swift */; };
+		F307AE176788634994E3062A /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A08A5DC5A3FE627A6FD066 /* APIClient.swift */; };
 		F3486443B86922D07CAE1E61 /* EpubParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D218D5C79982F3DE4F783F2 /* EpubParser.swift */; };
 		F72CB34B9A489E164615100D /* RateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F4507F3402ECADEB2000F5 /* RateView.swift */; };
 /* End PBXBuildFile section */
@@ -41,11 +45,16 @@
 		264A0159A50CCE29E224CC42 /* SearchIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchIndex.swift; sourceTree = "<group>"; };
 		275B28946D5D2B0CCEE9E8B5 /* MySenseinBookApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MySenseinBookApp.swift; sourceTree = "<group>"; };
 		27E9735A335BDF54E086D0C5 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		2AF35382236D78F3C9C07459 /* PairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingView.swift; sourceTree = "<group>"; };
 		31B81B53A8754E16B2A77743 /* XMLTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLTree.swift; sourceTree = "<group>"; };
+		3C15786A4BE1753685B9324A /* ServerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerConfig.swift; sourceTree = "<group>"; };
+		46A08A5DC5A3FE627A6FD066 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		49D3D530059B7F120E893A9E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		51049F0AFBC16B08729E49A1 /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
 		52F1564B34FD0D079A1F9C76 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		60F5CA395B466F21F7245B20 /* ReaderWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderWebView.swift; sourceTree = "<group>"; };
 		65BFD234522FF04EED853673 /* Sample2.fb2 */ = {isa = PBXFileReference; path = Sample2.fb2; sourceTree = "<group>"; };
+		6FD0BE608E50CF4A8E479FB6 /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
 		7276D508EB3A6710F56173BF /* MiniZip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniZip.swift; sourceTree = "<group>"; };
 		76928F97D6B9A11205A2D5D5 /* AnnotationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationsView.swift; sourceTree = "<group>"; };
 		7F77079E82224E71885B1EA1 /* my-sensein-book.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "my-sensein-book.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -108,6 +117,7 @@
 				F8B843657DE0BA6FFFBE5C1A /* App */,
 				9DE8797635ED82717514F8A8 /* Core */,
 				814ABB7692F0871AED9B9499 /* Models */,
+				CFB694E682D00EAA23FC581B /* Sync */,
 				CA72FCBD831AA84F413FB8BB /* UI */,
 			);
 			path = Sources;
@@ -132,6 +142,17 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
+		CFB694E682D00EAA23FC581B /* Sync */ = {
+			isa = PBXGroup;
+			children = (
+				46A08A5DC5A3FE627A6FD066 /* APIClient.swift */,
+				6FD0BE608E50CF4A8E479FB6 /* Keychain.swift */,
+				2AF35382236D78F3C9C07459 /* PairingView.swift */,
+				3C15786A4BE1753685B9324A /* ServerConfig.swift */,
+			);
+			path = Sync;
+			sourceTree = "<group>";
+		};
 		D18C382D1161017875ECE1DD = {
 			isa = PBXGroup;
 			children = (
@@ -144,6 +165,7 @@
 		F8B843657DE0BA6FFFBE5C1A /* App */ = {
 			isa = PBXGroup;
 			children = (
+				49D3D530059B7F120E893A9E /* Info.plist */,
 				275B28946D5D2B0CCEE9E8B5 /* MySenseinBookApp.swift */,
 			);
 			path = App;
@@ -218,6 +240,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F307AE176788634994E3062A /* APIClient.swift in Sources */,
 				8171412BEE0C9FAA96ED1C9A /* AddBooksView.swift in Sources */,
 				38E207682DB036CDF745D507 /* AnnotationsView.swift in Sources */,
 				3CAC146551FCDCBEF8AD14B4 /* Book.swift in Sources */,
@@ -226,10 +249,12 @@
 				DA0FF35984A5573D4D23C45C /* CurlReaderView.swift in Sources */,
 				F3486443B86922D07CAE1E61 /* EpubParser.swift in Sources */,
 				A72A636B2B1D25267BD8917D /* Fb2Parser.swift in Sources */,
+				7CFFCC64A028FCA6BA5D5AD1 /* Keychain.swift in Sources */,
 				881A52793CA2EDE24828FA6D /* LibraryStore.swift in Sources */,
 				5B6FD4E344C3D6B512C4E370 /* LibraryView.swift in Sources */,
 				88623905D3796A8FD047400D /* MiniZip.swift in Sources */,
 				915A7518C505F78FBDFCF64E /* MySenseinBookApp.swift in Sources */,
+				C4C59DCD8FC163B8CAA9DFD6 /* PairingView.swift in Sources */,
 				F72CB34B9A489E164615100D /* RateView.swift in Sources */,
 				A64FC78EFB9521DF38FE5C06 /* ReaderController.swift in Sources */,
 				1C440D438E356A18E128E61C /* ReaderScreen.swift in Sources */,
@@ -237,6 +262,7 @@
 				06B314451033B53A593515BC /* ReaderWebView.swift in Sources */,
 				E407DE5CBFDDFBD698D956B4 /* RootTabView.swift in Sources */,
 				27E4C0A2C08E3FE85BB98EF2 /* SearchIndex.swift in Sources */,
+				5A35402C32BF562B6CB9A7EE /* ServerConfig.swift in Sources */,
 				BD87433D7C20815AC225488F /* Theme.swift in Sources */,
 				1DF86D85569DF3BE4A3C3297 /* XMLTree.swift in Sources */,
 			);
@@ -251,15 +277,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = book;
-				INFOPLIST_KEY_CFBundleName = book;
-				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "© Kravitz Geroge";
-				INFOPLIST_KEY_UIFileSharingEnabled = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_ipad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_FILE = Sources/App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -398,15 +416,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = book;
-				INFOPLIST_KEY_CFBundleName = book;
-				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "© Kravitz Geroge";
-				INFOPLIST_KEY_UIFileSharingEnabled = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_ipad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_FILE = Sources/App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

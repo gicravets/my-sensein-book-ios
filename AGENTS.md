@@ -21,9 +21,16 @@ Product **My.Sensein.Book** · home-screen icon label **`book`** · bundle **`co
   values for missing non-optional keys → adding a `Book` field can wipe `library.json`.
   `Book` has a hand-written `init(from:)` (in an extension, keeps memberwise init) using
   `decodeIfPresent ?? default`. **Always add new persisted Book fields through that decoder.**
-- Driving the simulator UI via computer-use can fail (screen capture / SCContentFilter);
-  `xcrun simctl io <id> screenshot` works for viewing. There may be a separate
-  "My.Sensein.MoneyFlow" app on the sim — that's a DIFFERENT user project, don't touch it.
+- Driving the simulator UI via computer-use: screen capture returns nil unless
+  **Simulator is frontmost** — call `open_application "Simulator"` first, then screenshot.
+  The sim's **hardware keyboard is usually OFF**, so computer-use `type`/`cmd+v` don't
+  reach text fields. To enter text: set the Mac clipboard (`pbcopy`), then **long-press
+  the field** (left_mouse_down → wait ~1s → left_mouse_up) → tap the **Paste** popover
+  ("Automatically Sync Pasteboard" is on by default, so Mac↔sim clipboard sync). Or
+  enable I/O ▸ Keyboard ▸ Connect Hardware Keyboard. `simctl launch` runs the INSTALLED
+  binary — re-run `simctl install` after a rebuild or you'll test a stale build.
+- There may be a separate "My.Sensein.MoneyFlow" app on the sim — that's a DIFFERENT
+  user project, don't touch it. (Live web↔iOS pairing+sync e2e was verified this way.)
 
 ## Layout
 - `Sources/App` — `MySenseinBookApp` (@main), injects LibraryStore/ThemeManager/ServerConfig.

@@ -103,6 +103,16 @@ final class LibraryStore: ObservableObject {
         save()
     }
 
+    /// Apply reading state pulled from the server (overall progress / finished /
+    /// lastReadAt). Precise chapter position is engine-specific and not synced yet.
+    func applyRemoteState(bookID: UUID, progress: Double, isFinished: Bool, lastReadAt: Date?) {
+        guard let i = books.firstIndex(where: { $0.id == bookID }) else { return }
+        books[i].progress = progress
+        books[i].isFinished = isFinished
+        if let lastReadAt { books[i].lastReadAt = lastReadAt }
+        save()
+    }
+
     // MARK: - Annotations
 
     func book(id: UUID) -> Book? { books.first { $0.id == id } }

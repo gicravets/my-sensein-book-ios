@@ -69,4 +69,38 @@ struct APIClient {
         struct Page: Decodable { let totalElements: Int }
         return try await send(request("/api/v1/books?size=1"), as: Page.self).totalElements
     }
+
+    /// Full server catalog (for sync matching).
+    func getBooks() async throws -> [RemoteBook] {
+        struct Page: Decodable { let content: [RemoteBook] }
+        return try await send(request("/api/v1/books?size=1000"), as: Page.self).content
+    }
+
+    /// Push overall reading state to the server.
+    func putProgression(id: String, totalProgression: Double, completed: Bool, deviceName: String) async throws {
+        let body = try JSONSerialization.data(withJSONObject: [
+            "progression": totalProgression,
+            "totalProgression": totalProgression,
+            "page": Int((totalProgression * 100).rounded()),
+            "totalPages": 100,
+            "completed": completed,
+            "deviceName": deviceName,
+        ])
+        let req = request("/api/v1/books/\(id)/progression", method: "PUT", body: body)
+        _ = try await URLSession.shared.data(for: req)
+    }
+}
+
+// Server DTOs (subset of the my-sensein-book contract used for sync).
+struct RemoteProgress: Codable {
+    var totalProgression: Double
+    var completed: Bool
+    var lastReadAt: String?
+}
+
+struct RemoteBook: Codable {
+    let id: String
+    let title: String
+    let authors: [String]
+    let readProgress: RemoteProgress?
 }

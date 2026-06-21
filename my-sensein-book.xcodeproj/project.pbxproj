@@ -31,6 +31,7 @@
 		C4C59DCD8FC163B8CAA9DFD6 /* PairingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF35382236D78F3C9C07459 /* PairingView.swift */; };
 		CEE2B09C5DEB3244937FC0DD /* CoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8C7ADE8974F56B3664CAF2C /* CoverView.swift */; };
 		DA0FF35984A5573D4D23C45C /* CurlReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E655CB6D519005318A3B0E2 /* CurlReaderView.swift */; };
+		DC5B994536633967CAF0B55E /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D2EAC7749CDECE3EF20854 /* SyncService.swift */; };
 		E407DE5CBFDDFBD698D956B4 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A46F670C8155C105BFC658 /* RootTabView.swift */; };
 		F307AE176788634994E3062A /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A08A5DC5A3FE627A6FD066 /* APIClient.swift */; };
 		F3486443B86922D07CAE1E61 /* EpubParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D218D5C79982F3DE4F783F2 /* EpubParser.swift */; };
@@ -41,6 +42,7 @@
 		0E655CB6D519005318A3B0E2 /* CurlReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurlReaderView.swift; sourceTree = "<group>"; };
 		17F6453B3FE006CB85D8AD31 /* AddBooksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBooksView.swift; sourceTree = "<group>"; };
 		1974773084076A267F34A997 /* BookParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookParser.swift; sourceTree = "<group>"; };
+		22D2EAC7749CDECE3EF20854 /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
 		2325860FB5FDCE2D47DE4EE3 /* ReaderController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderController.swift; sourceTree = "<group>"; };
 		264A0159A50CCE29E224CC42 /* SearchIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchIndex.swift; sourceTree = "<group>"; };
 		275B28946D5D2B0CCEE9E8B5 /* MySenseinBookApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MySenseinBookApp.swift; sourceTree = "<group>"; };
@@ -149,6 +151,7 @@
 				6FD0BE608E50CF4A8E479FB6 /* Keychain.swift */,
 				2AF35382236D78F3C9C07459 /* PairingView.swift */,
 				3C15786A4BE1753685B9324A /* ServerConfig.swift */,
+				22D2EAC7749CDECE3EF20854 /* SyncService.swift */,
 			);
 			path = Sync;
 			sourceTree = "<group>";
@@ -263,6 +266,7 @@
 				E407DE5CBFDDFBD698D956B4 /* RootTabView.swift in Sources */,
 				27E4C0A2C08E3FE85BB98EF2 /* SearchIndex.swift in Sources */,
 				5A35402C32BF562B6CB9A7EE /* ServerConfig.swift in Sources */,
+				DC5B994536633967CAF0B55E /* SyncService.swift in Sources */,
 				BD87433D7C20815AC225488F /* Theme.swift in Sources */,
 				1DF86D85569DF3BE4A3C3297 /* XMLTree.swift in Sources */,
 			);

@@ -5,6 +5,7 @@ import VisionKit
 /// claim a device key, store it. Shows linked status + connectivity check.
 struct PairingView: View {
     @EnvironmentObject var config: ServerConfig
+    @EnvironmentObject var store: LibraryStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var deviceName = UIDevice.current.name
@@ -14,6 +15,7 @@ struct PairingView: View {
     @State private var error: String?
     @State private var booksCount: Int?
     @State private var showScanner = false
+    @State private var syncInfo: String?
 
     var body: some View {
         NavigationStack {
@@ -23,8 +25,10 @@ struct PairingView: View {
                         LabeledContent("Сервер", value: config.serverURL ?? "—")
                         LabeledContent("Устройство", value: config.deviceName ?? "—")
                         if let n = booksCount { LabeledContent("Книг на сервере", value: "\(n)") }
+                        Button("Синхронизировать") { Task { await runSync() } }
+                        if let syncInfo { Text(syncInfo).font(.footnote).foregroundStyle(.secondary) }
                         Button("Проверить связь") { Task { await checkConnection() } }
-                        Button("Отвязать", role: .destructive) { config.unlink(); booksCount = nil }
+                        Button("Отвязать", role: .destructive) { config.unlink(); booksCount = nil; syncInfo = nil }
                     }
                 } else {
                     Section("Привязать к серверу") {
@@ -73,6 +77,15 @@ struct PairingView: View {
             let (base, resp) = try await APIClient.claim(payload: payload, deviceName: deviceName)
             config.link(url: base, key: resp.key, deviceName: resp.deviceName)
             await checkConnection()
+        } catch { self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription }
+    }
+
+    private func runSync() async {
+        busy = true; error = nil; syncInfo = nil
+        defer { busy = false }
+        do {
+            let r = try await SyncService.sync(store: store, config: config)
+            syncInfo = "Совпало: \(r.matched) · отправлено: \(r.pushed) · получено: \(r.pulled)"
         } catch { self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription }
     }
 

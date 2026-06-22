@@ -42,6 +42,16 @@ Resources/        # Sample.epub и ассеты
 project.yml       # спецификация XcodeGen (источник истины для .xcodeproj)
 ```
 
+## Документы и UI Kit (вне этого репо)
+
+> Этот репозиторий — **только код**. Все правила, роадмап, журналы и заметки для агентов
+> живут в `my-sensein-book-ios-docs`, дизайн-система — в `my-sensein-book-ui-kit-ios`.
+> **Начни с** [`../my-sensein-book-ios-docs/REGULATIONS.md`](../my-sensein-book-ios-docs/).
+
+- iOS-доки: [`../my-sensein-book-ios-docs`](../my-sensein-book-ios-docs/) ([GitHub](https://github.com/gicravets/my-sensein-book-ios-docs))
+- iOS UI Kit: [`../my-sensein-book-ui-kit-ios`](../my-sensein-book-ui-kit-ios/) ([GitHub](https://github.com/gicravets/my-sensein-book-ui-kit-ios))
+- Референсы: [`../реф`](../реф/)
+
 ## Связанные репозитории
 
 - Бэкенд: [my-sensein-book-backend](https://github.com/gicravets/my-sensein-book-backend)

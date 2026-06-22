@@ -16,6 +16,9 @@ struct PairingView: View {
     @State private var booksCount: Int?
     @State private var showScanner = false
     @State private var syncInfo: String?
+    @State private var serverVersion: String?
+    @State private var serverDemo = false
+    @State private var updateNote: String?
 
     var body: some View {
         NavigationStack {
@@ -24,6 +27,15 @@ struct PairingView: View {
                     Section("Подключено") {
                         LabeledContent("Сервер", value: config.serverURL ?? "—")
                         LabeledContent("Устройство", value: config.deviceName ?? "—")
+                        if let serverVersion { LabeledContent("Версия сервера", value: serverVersion) }
+                        if serverDemo {
+                            Label("Демо · только чтение", systemImage: "eye")
+                                .font(.footnote).foregroundStyle(.secondary)
+                        }
+                        if let updateNote {
+                            Label(updateNote, systemImage: "arrow.up.circle")
+                                .font(.footnote).foregroundStyle(.green)
+                        }
                         if let n = booksCount { LabeledContent("Книг на сервере", value: "\(n)") }
                         Button("Синхронизировать") { Task { await runSync() } }
                         if let syncInfo { Text(syncInfo).font(.footnote).foregroundStyle(.secondary) }
@@ -91,8 +103,16 @@ struct PairingView: View {
 
     private func checkConnection() async {
         guard let url = config.serverURL else { return }
-        do { booksCount = try await APIClient(baseURL: url, apiKey: config.deviceKey).booksCount() }
+        let client = APIClient(baseURL: url, apiKey: config.deviceKey)
+        do { booksCount = try await client.booksCount() }
         catch { self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription }
+        if let setup = try? await client.getSetup() {
+            serverVersion = setup.version
+            serverDemo = setup.demo ?? false
+        }
+        if let upd = try? await client.getUpdate(), upd.updateAvailable == true {
+            updateNote = "Доступно обновление " + (upd.latest ?? "")
+        }
     }
 }
 

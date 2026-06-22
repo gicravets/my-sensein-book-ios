@@ -102,6 +102,16 @@ struct APIClient {
         _ = try await send(request("/api/v1/preferences", method: "PUT", body: body), as: RemotePrefs.self)
     }
 
+    // --- server setup / version / update ---
+
+    func getSetup() async throws -> ServerSetup {
+        try await send(request("/api/v1/setup"), as: ServerSetup.self)
+    }
+
+    func getUpdate() async throws -> ServerUpdate {
+        try await send(request("/api/v1/update"), as: ServerUpdate.self)
+    }
+
     // --- annotations ---
 
     func getHighlights(bookID: String) async throws -> [RemoteAnnotation] {
@@ -159,4 +169,17 @@ struct RemoteBook: Codable {
     let title: String
     let authors: [String]
     let readProgress: RemoteProgress?
+}
+
+struct ServerSetup: Codable {
+    var claimed: Bool?
+    var demo: Bool?
+    var version: String?
+}
+
+struct ServerUpdate: Codable {
+    var current: String?
+    var latest: String?
+    var updateAvailable: Bool?
+    var url: String?
 }

@@ -43,12 +43,30 @@ struct LibraryView: View {
         }
     }
 
+    /// Library-wide search folds Russian ё→е (so ёлка ↔ елка) + case.
+    private func fold(_ s: String) -> String {
+        s.replacingOccurrences(of: "ё", with: "е").replacingOccurrences(of: "Ё", with: "е").lowercased()
+    }
+
+    /// Saved quotes across the whole library matching the query (book + highlight).
+    private var matchingQuotes: [(book: Book, hl: Highlight)] {
+        let q = fold(query.trimmingCharacters(in: .whitespaces))
+        guard q.count >= 2 else { return [] }
+        var out: [(Book, Highlight)] = []
+        for b in store.books {
+            for h in b.highlights where fold(h.text + " " + h.note).contains(q) {
+                out.append((b, h))
+            }
+        }
+        return out
+    }
+
     /// Books after search filtering + the chosen sort order.
     private var visibleBooks: [Book] {
         var b = store.books
-        let q = query.trimmingCharacters(in: .whitespaces).lowercased()
+        let q = fold(query.trimmingCharacters(in: .whitespaces))
         if !q.isEmpty {
-            b = b.filter { $0.title.lowercased().contains(q) || ($0.author?.lowercased().contains(q) ?? false) }
+            b = b.filter { fold($0.title).contains(q) || fold($0.author ?? "").contains(q) }
         }
         switch sort {
         case .added:    b.sort { $0.addedAt > $1.addedAt }
@@ -283,13 +301,14 @@ struct LibraryView: View {
         LazyVStack(spacing: 0) {
             if store.books.isEmpty {
                 emptyState.padding(.top, 60)
-            } else if visibleBooks.isEmpty {
+            } else if visibleBooks.isEmpty && matchingQuotes.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "magnifyingglass").font(.largeTitle).foregroundStyle(.secondary)
                     Text("Ничего не найдено").foregroundStyle(.secondary)
                 }
                 .padding(.top, 50)
             } else {
+                if searching && !matchingQuotes.isEmpty { quotesSection }
                 ForEach(visibleBooks) { book in
                     if selecting {
                         selectRow(book)
@@ -306,6 +325,30 @@ struct LibraryView: View {
             }
         }
         .padding(.top, 4)
+    }
+
+    private var quotesSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("ЦИТАТЫ · \(matchingQuotes.count)")
+                .font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                .padding(.horizontal, 16).padding(.top, 6)
+            ForEach(Array(matchingQuotes.enumerated()), id: \.offset) { _, item in
+                Button { openBook = item.book } label: {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(item.hl.text).font(.subheadline).foregroundStyle(.primary)
+                            .lineLimit(3).multilineTextAlignment(.leading)
+                        Text(item.book.title).font(.caption2).foregroundStyle(Brand.accent)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 16)
+            }
+            Divider().padding(.leading, 16).padding(.vertical, 6)
+        }
     }
 
     private func selectRow(_ book: Book) -> some View {

@@ -20,18 +20,27 @@ final class ReaderController: NSObject, ObservableObject {
     @Published var page: Int = 0
     @Published var pageCount: Int = 1
     @Published var fraction: Double = 0          // within current chapter
-    @Published var fontScale: Int
+    @Published var fontScale: Int {
+        didSet { UserDefaults.standard.set(fontScale, forKey: PreferencesSync.kFont); PreferencesSync.stamp() }
+    }
     @Published var margins: Int = 24
     @Published var lineSpacing: Double = 1.5
     @Published var readingMode: ReadingMode = .slide {
         didSet {
             UserDefaults.standard.set(readingMode.rawValue, forKey: "readingMode")
+            PreferencesSync.stamp()
             // slide<->scroll reuse the same web view; to/from curl the SwiftUI surface swaps.
             if oldValue != .curl, readingMode != .curl { reloadPreservingPosition() }
         }
     }
     var scrollMode: Bool { readingMode == .scroll }
-    @Published var theme: ReaderTheme { didSet { applySettings() } }
+    @Published var theme: ReaderTheme {
+        didSet {
+            UserDefaults.standard.set(theme.rawValue, forKey: PreferencesSync.kTheme)
+            PreferencesSync.stamp()
+            applySettings()
+        }
+    }
 
     // Text-selection state for the highlight toolbar.
     @Published var selectionActive = false
@@ -122,8 +131,14 @@ final class ReaderController: NSObject, ObservableObject {
             self.chapterIndex = min(max(0, book.chapterIndex), max(0, epub.spine.count - 1))
             self.pendingLanding = .fraction(book.chapterFraction)
         }
-        self.fontScale = 100
-        self.theme = .light
+        // load synced reader prefs (persisted + cross-device); fall back to defaults
+        self.fontScale = UserDefaults.standard.object(forKey: PreferencesSync.kFont) as? Int ?? 100
+        if let raw = UserDefaults.standard.string(forKey: PreferencesSync.kTheme),
+           let t = ReaderTheme(rawValue: raw) {
+            self.theme = t
+        } else {
+            self.theme = .light
+        }
         if let raw = UserDefaults.standard.string(forKey: "readingMode"),
            let m = ReadingMode(rawValue: raw) {
             self.readingMode = m

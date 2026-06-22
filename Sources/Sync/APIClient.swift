@@ -91,6 +91,17 @@ struct APIClient {
         _ = try await URLSession.shared.data(for: req)
     }
 
+    // --- reader preferences (synced across devices) ---
+
+    func getPreferences() async throws -> RemotePrefs {
+        try await send(request("/api/v1/preferences"), as: RemotePrefs.self)
+    }
+
+    func putPreferences(_ prefs: RemotePrefs) async throws {
+        let body = try JSONEncoder().encode(prefs)
+        _ = try await send(request("/api/v1/preferences", method: "PUT", body: body), as: RemotePrefs.self)
+    }
+
     // --- annotations ---
 
     func getHighlights(bookID: String) async throws -> [RemoteAnnotation] {

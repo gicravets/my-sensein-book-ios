@@ -86,6 +86,9 @@ enum SyncService {
                 result.annotations += 1
             }
         }
+
+        // reader preferences (theme / font / mode) — newest-wins, applied on next reader open
+        await PreferencesSync.run(client: client)
         return result
     }
 

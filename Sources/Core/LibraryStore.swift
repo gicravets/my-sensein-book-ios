@@ -5,6 +5,7 @@ import SwiftUI
 final class LibraryStore: ObservableObject {
     @Published private(set) var books: [Book] = []
     @Published private(set) var shelves: [String] = []   // user-created shelf names, in order
+    @Published private(set) var smartShelves: [SmartShelf] = []   // dynamic, rule-based shelves
     @Published var importError: String?
 
     init() {
@@ -23,6 +24,10 @@ final class LibraryStore: ObservableObject {
            let decoded = try? JSONDecoder().decode([String].self, from: data) {
             shelves = decoded
         }
+        if let data = try? Data(contentsOf: AppPaths.smartShelvesFile),
+           let decoded = try? JSONDecoder().decode([SmartShelf].self, from: data) {
+            smartShelves = decoded
+        }
         // Make sure any shelf referenced by a book is also in the list.
         for name in books.compactMap({ $0.shelf }) where !shelves.contains(name) {
             shelves.append(name)
@@ -36,6 +41,32 @@ final class LibraryStore: ObservableObject {
         if let data = try? JSONEncoder().encode(shelves) {
             try? data.write(to: AppPaths.shelvesFile)
         }
+        if let data = try? JSONEncoder().encode(smartShelves) {
+            try? data.write(to: AppPaths.smartShelvesFile)
+        }
+    }
+
+    // MARK: - Smart shelves (dynamic, rule-based)
+
+    /// Books matching a rule, computed live from the library (no stored membership).
+    func books(matching rule: SmartRule) -> [Book] {
+        switch rule {
+        case .unread:   return books.filter { $0.progress == 0 && !$0.isFinished }
+        case .reading:  return books.filter { $0.progress > 0 && !$0.isFinished }
+        case .finished: return books.filter { $0.isFinished }
+        }
+    }
+
+    func createSmartShelf(_ name: String, rule: SmartRule) {
+        let n = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !n.isEmpty else { return }
+        smartShelves.append(SmartShelf(name: n, rule: rule))
+        save()
+    }
+
+    func deleteSmartShelf(_ id: UUID) {
+        smartShelves.removeAll { $0.id == id }
+        save()
     }
 
     // MARK: - First-run sample

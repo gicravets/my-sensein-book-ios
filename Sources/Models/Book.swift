@@ -87,6 +87,7 @@ enum AppPaths {
     static var covers: URL { ensure(documents.appendingPathComponent("Covers", isDirectory: true)) }
     static var libraryFile: URL { documents.appendingPathComponent("library.json") }
     static var shelvesFile: URL { documents.appendingPathComponent("shelves.json") }
+    static var smartShelvesFile: URL { documents.appendingPathComponent("smart-shelves.json") }
 
     @discardableResult
     private static func ensure(_ url: URL) -> URL {

@@ -15,6 +15,8 @@ struct LibraryView: View {
     @State private var infoBook: Book?
     @State private var shelfBook: Book?
     @State private var openShelf: ShelfRef?
+    @State private var openSmart: SmartShelf?
+    @State private var showNewSmart = false
     @State private var showNewShelf = false
     @State private var newShelfName = ""
 
@@ -116,6 +118,13 @@ struct LibraryView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { openBook = book }
             }
         }
+        .sheet(item: $openSmart) { shelf in
+            SmartShelfDetailView(shelf: shelf) { book in
+                openSmart = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { openBook = book }
+            }
+        }
+        .sheet(isPresented: $showNewSmart) { NewSmartShelfSheet() }
         .alert("Новая полка", isPresented: $showNewShelf) {
             TextField("Название", text: $newShelfName)
             Button("Создать") { store.createShelf(newShelfName); newShelfName = "" }
@@ -314,6 +323,41 @@ struct LibraryView: View {
 
     private var shelvesList: some View {
         VStack(spacing: 14) {
+            // Smart (dynamic) shelves — books computed live from a rule
+            HStack {
+                Text("Умные полки").font(.subheadline.weight(.semibold))
+                Spacer()
+                Button { showNewSmart = true } label: {
+                    Image(systemName: "plus.circle.fill").font(.title3)
+                }
+                .tint(theme.accent)
+            }
+            .padding(.horizontal, 16)
+
+            if store.smartShelves.isEmpty {
+                Text("Динамическая полка по правилу: не начатые / читаю сейчас / прочитанные.")
+                    .font(.footnote).foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+            } else {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 14),
+                                    GridItem(.flexible(), spacing: 14)], spacing: 18) {
+                    ForEach(store.smartShelves) { s in
+                        ShelfCard(name: s.name, books: store.books(matching: s.rule))
+                            .contentShape(Rectangle())
+                            .onTapGesture { openSmart = s }
+                            .contextMenu {
+                                Button(role: .destructive) { store.deleteSmartShelf(s.id) } label: {
+                                    Label("Удалить умную полку", systemImage: "trash")
+                                }
+                            }
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+
+            Divider().padding(.horizontal, 16).padding(.top, 2)
+
             Button { newShelfName = ""; showNewShelf = true } label: {
                 Label("Новая полка", systemImage: "plus.circle.fill")
                     .font(.subheadline.weight(.semibold))
@@ -695,6 +739,79 @@ private struct ShelfDetailView: View {
                 }
             }
             .navigationTitle(shelfName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Готово") { dismiss() } } }
+        }
+    }
+}
+
+/// Create a dynamic shelf: a name + a rule.
+private struct NewSmartShelfSheet: View {
+    @EnvironmentObject var store: LibraryStore
+    @Environment(\.dismiss) private var dismiss
+    @State private var name = ""
+    @State private var rule: SmartRule = .reading
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Название") {
+                    TextField(rule.title, text: $name)
+                }
+                Section("Правило") {
+                    Picker("Правило", selection: $rule) {
+                        ForEach(SmartRule.allCases) { r in
+                            Label(r.title, systemImage: r.icon).tag(r)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                }
+            }
+            .navigationTitle("Умная полка")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) { Button("Отмена") { dismiss() } }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Создать") {
+                        store.createSmartShelf(name.isEmpty ? rule.title : name, rule: rule)
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Books matching a smart shelf's rule (computed live). Tap opens a book.
+private struct SmartShelfDetailView: View {
+    let shelf: SmartShelf
+    var onOpen: (Book) -> Void
+    @EnvironmentObject var store: LibraryStore
+    @Environment(\.dismiss) private var dismiss
+
+    private var books: [Book] { store.books(matching: shelf.rule) }
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if books.isEmpty {
+                    VStack(spacing: 10) {
+                        Image(systemName: shelf.rule.icon).font(.largeTitle).foregroundStyle(.secondary)
+                        Text("Под правило пока ничего не подходит").foregroundStyle(.secondary)
+                    }
+                } else {
+                    List {
+                        ForEach(books) { b in
+                            Button { onOpen(b) } label: { BookRow(book: b) }
+                                .buttonStyle(.plain)
+                                .listRowInsets(EdgeInsets())
+                        }
+                    }
+                    .listStyle(.plain)
+                }
+            }
+            .navigationTitle(shelf.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Готово") { dismiss() } } }
         }

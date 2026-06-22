@@ -21,6 +21,7 @@
 		7CFFCC64A028FCA6BA5D5AD1 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FD0BE608E50CF4A8E479FB6 /* Keychain.swift */; };
 		7DCA1FDBC951B205B5198CBF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 52F1564B34FD0D079A1F9C76 /* Assets.xcassets */; };
 		8171412BEE0C9FAA96ED1C9A /* AddBooksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F6453B3FE006CB85D8AD31 /* AddBooksView.swift */; };
+		8574E3731FD68A45A49CEA9F /* SmartShelf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08DDF83CBEC154815079B223 /* SmartShelf.swift */; };
 		881A52793CA2EDE24828FA6D /* LibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF3AFCE8D3658E14C3A8DE56 /* LibraryStore.swift */; };
 		88623905D3796A8FD047400D /* MiniZip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7276D508EB3A6710F56173BF /* MiniZip.swift */; };
 		889A000CC726EEBABB0BAFBE /* Sample.epub in Resources */ = {isa = PBXBuildFile; fileRef = D1F971694D0017AC8A23B55B /* Sample.epub */; };
@@ -40,6 +41,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		08DDF83CBEC154815079B223 /* SmartShelf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartShelf.swift; sourceTree = "<group>"; };
 		0E655CB6D519005318A3B0E2 /* CurlReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurlReaderView.swift; sourceTree = "<group>"; };
 		17F6453B3FE006CB85D8AD31 /* AddBooksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBooksView.swift; sourceTree = "<group>"; };
 		1974773084076A267F34A997 /* BookParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookParser.swift; sourceTree = "<group>"; };
@@ -79,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				FC29FEDE10C6E13315802B5E /* Book.swift */,
+				08DDF83CBEC154815079B223 /* SmartShelf.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -270,6 +273,7 @@
 				E407DE5CBFDDFBD698D956B4 /* RootTabView.swift in Sources */,
 				27E4C0A2C08E3FE85BB98EF2 /* SearchIndex.swift in Sources */,
 				5A35402C32BF562B6CB9A7EE /* ServerConfig.swift in Sources */,
+				8574E3731FD68A45A49CEA9F /* SmartShelf.swift in Sources */,
 				DC5B994536633967CAF0B55E /* SyncService.swift in Sources */,
 				BD87433D7C20815AC225488F /* Theme.swift in Sources */,
 				1DF86D85569DF3BE4A3C3297 /* XMLTree.swift in Sources */,

@@ -28,6 +28,12 @@ final class ReaderController: NSObject, ObservableObject {
     func highlightFragment(_ id: String) {
         webView?.evaluateJavaScript("window.__moHighlight&&window.__moHighlight(\(jsString(id)))")
     }
+    /// The MO sentence the reader is currently looking at — the start point for narration.
+    func firstVisibleFragment(_ completion: @escaping (String?) -> Void) {
+        webView?.evaluateJavaScript("window.__firstVisibleFragment?window.__firstVisibleFragment():''") { res, _ in
+            completion((res as? String).flatMap { $0.isEmpty ? nil : $0 })
+        }
+    }
 
     @Published var chapterIndex: Int
     @Published var page: Int = 0
@@ -458,6 +464,12 @@ final class ReaderController: NSObject, ObservableObject {
           window.__removeHighlight=function(id){
             var ms=col.querySelectorAll('[data-hl="'+id+'"]');
             for(var i=0;i<ms.length;i++){ var m=ms[i]; while(m.firstChild) m.parentNode.insertBefore(m.firstChild, m); m.parentNode.removeChild(m); }
+          };
+          // Media Overlays: the id of the first MO sentence currently in view (start point).
+          window.__firstVisibleFragment=function(){
+            var sp=d.querySelectorAll('span[id^="f"]'); var H=window.__H||window.innerHeight;
+            for(var i=0;i<sp.length;i++){ var r=sp[i].getBoundingClientRect(); if(r.bottom>0 && r.left < (window.__W||window.innerWidth) && r.top < H) return sp[i].id; }
+            return sp.length?sp[0].id:'';
           };
           // Media Overlays: highlight the spoken sentence (<span id>) and scroll it into view.
           window.__moHighlight=function(id){

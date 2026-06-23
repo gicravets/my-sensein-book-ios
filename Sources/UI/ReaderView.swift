@@ -52,7 +52,11 @@ struct ReaderView: View {
                 ch += 1
             }
         }
-        mo.start(clips: controller.mediaOverlayClips(forChapter: ch), resolve: resolve, title: controller.bookTitle)
+        // start from the sentence the reader is currently looking at, not the chapter top
+        controller.firstVisibleFragment { fid in
+            mo.start(clips: controller.mediaOverlayClips(forChapter: ch),
+                     resolve: resolve, title: controller.bookTitle, fromFragment: fid)
+        }
     }
 
     /// Start read-aloud from the current chapter, continuing through the book.
@@ -235,6 +239,22 @@ struct ReaderView: View {
                         .background(controller.theme.bgColor.opacity(0.9), in: Capsule())
                         .overlay(Capsule().stroke(controller.theme.fgColor.opacity(0.15), lineWidth: 1))
                         .transition(.opacity)
+                }
+                if mo.active {
+                    HStack(spacing: 16) {
+                        Button { mo.prev() } label: { Image(systemName: "backward.fill") }
+                        Button { mo.toggle() } label: { Image(systemName: mo.isPlaying ? "pause.fill" : "play.fill") }
+                        Slider(value: Binding(get: { mo.progress }, set: { mo.seek(toFraction: $0) }), in: 0...1)
+                            .tint(controller.theme.fgColor)
+                        Button { mo.next() } label: { Image(systemName: "forward.fill") }
+                    }
+                    .font(.title3)
+                    .foregroundStyle(controller.theme.fgColor)
+                    .padding(.horizontal, 18).padding(.vertical, 9)
+                    .background(controller.theme.bgColor.opacity(0.92), in: Capsule())
+                    .overlay(Capsule().stroke(controller.theme.fgColor.opacity(0.12), lineWidth: 1))
+                    .padding(.horizontal, 16)
+                    .transition(.opacity)
                 }
                 if miniVisible {
                     scrollPanel.transition(.move(edge: .bottom).combined(with: .opacity))

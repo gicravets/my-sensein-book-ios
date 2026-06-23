@@ -71,7 +71,7 @@ enum Fb2Parser {
         }
 
         return ParsedEpub(title: (title?.isEmpty == false ? title! : url.deletingPathExtension().lastPathComponent),
-                          author: author, coverHref: coverHref,
+                          author: author, series: nil, coverHref: coverHref,
                           rootDir: dir, opfDir: dir, spine: spine, toc: toc, startIndex: 0)
     }
 

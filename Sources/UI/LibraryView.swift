@@ -16,6 +16,7 @@ struct LibraryView: View {
     @State private var shelfBook: Book?
     @State private var openShelf: ShelfRef?
     @State private var openSmart: SmartShelf?
+    @State private var openSeries: ShelfRef?
     @State private var showNewSmart = false
     @State private var showNewShelf = false
     @State private var newShelfName = ""
@@ -143,6 +144,12 @@ struct LibraryView: View {
             }
         }
         .sheet(isPresented: $showNewSmart) { NewSmartShelfSheet() }
+        .sheet(item: $openSeries) { ref in
+            SeriesDetailView(series: ref.name) { book in
+                openSeries = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { openBook = book }
+            }
+        }
         .alert("Новая полка", isPresented: $showNewShelf) {
             TextField("Название", text: $newShelfName)
             Button("Создать") { store.createShelf(newShelfName); newShelfName = "" }
@@ -394,6 +401,23 @@ struct LibraryView: View {
                                     Label("Удалить умную полку", systemImage: "trash")
                                 }
                             }
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+
+            if !store.seriesNames.isEmpty {
+                HStack {
+                    Text("Серии").font(.subheadline.weight(.semibold))
+                    Spacer()
+                }
+                .padding(.horizontal, 16).padding(.top, 6)
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 14),
+                                    GridItem(.flexible(), spacing: 14)], spacing: 18) {
+                    ForEach(store.seriesNames, id: \.self) { name in
+                        ShelfCard(name: name, books: store.books(inSeries: name))
+                            .contentShape(Rectangle())
+                            .onTapGesture { openSeries = ShelfRef(name: name) }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -822,6 +846,32 @@ private struct NewSmartShelfSheet: View {
                     }
                 }
             }
+        }
+    }
+}
+
+/// Books of one multi-volume series. Tap opens a book.
+private struct SeriesDetailView: View {
+    let series: String
+    var onOpen: (Book) -> Void
+    @EnvironmentObject var store: LibraryStore
+    @Environment(\.dismiss) private var dismiss
+
+    private var books: [Book] { store.books(inSeries: series) }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(books) { b in
+                    Button { onOpen(b) } label: { BookRow(book: b) }
+                        .buttonStyle(.plain)
+                        .listRowInsets(EdgeInsets())
+                }
+            }
+            .listStyle(.plain)
+            .navigationTitle(series)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Готово") { dismiss() } } }
         }
     }
 }

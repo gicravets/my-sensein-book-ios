@@ -24,6 +24,7 @@ struct TocEntry: Identifiable {
 struct ParsedEpub {
     let title: String
     let author: String?
+    let series: String?       // multi-volume series name, if any
     let coverHref: String?    // relative to the OPF directory
     let rootDir: URL          // unzipped archive root (WKWebView read-access scope)
     let opfDir: URL           // directory the OPF lives in (base for all hrefs)
@@ -105,6 +106,11 @@ enum EpubParser {
             ?? url.deletingPathExtension().lastPathComponent
         let author = package.descendants("creator").first?.text.trimmed.nilIfEmpty
 
+        // Series: EPUB2 calibre meta, else EPUB3 belongs-to-collection.
+        let seriesRaw = package.descendants("meta").first { $0.attributes["name"] == "calibre:series" }?.attributes["content"]
+            ?? package.descendants("meta").first { $0.attributes["property"] == "belongs-to-collection" }?.text
+        let series = seriesRaw.flatMap { $0.trimmed.nilIfEmpty }
+
         // 3. Manifest: id -> (href, media-type, properties).
         var manifest: [String: (href: String, type: String, props: String)] = [:]
         var navHref: String?
@@ -158,7 +164,7 @@ enum EpubParser {
             if size > 1500 { startIndex = i; break }
         }
 
-        return ParsedEpub(title: title, author: author, coverHref: coverHref,
+        return ParsedEpub(title: title, author: author, series: series, coverHref: coverHref,
                           rootDir: root, opfDir: opfDir, spine: spine, toc: toc, startIndex: startIndex)
     }
 

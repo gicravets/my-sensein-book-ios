@@ -28,6 +28,7 @@ struct Book: Identifiable, Codable, Equatable {
     let id: UUID
     var title: String
     var author: String?
+    var series: String? = nil     // multi-volume series name (from EPUB metadata)
     var fileName: String          // file inside Documents/Books
     var coverFileName: String?    // file inside Documents/Covers
     var addedAt: Date
@@ -59,7 +60,7 @@ extension Book {
     // Uses decodeIfPresent for every defaulted/optional field so adding new fields
     // never breaks decoding of older library.json files (forward-migration safe).
     private enum CodingKeys: String, CodingKey {
-        case id, title, author, fileName, coverFileName, addedAt
+        case id, title, author, series, fileName, coverFileName, addedAt
         case chapterIndex, chapterFraction, progress, lastReadAt
         case shelf, isFinished, bookmarks, highlights
         case serverID, fileHash
@@ -70,6 +71,7 @@ extension Book {
         id = try c.decode(UUID.self, forKey: .id)
         title = try c.decode(String.self, forKey: .title)
         author = try c.decodeIfPresent(String.self, forKey: .author)
+        series = try c.decodeIfPresent(String.self, forKey: .series)
         fileName = try c.decode(String.self, forKey: .fileName)
         coverFileName = try c.decodeIfPresent(String.self, forKey: .coverFileName)
         addedAt = try c.decodeIfPresent(Date.self, forKey: .addedAt) ?? Date()

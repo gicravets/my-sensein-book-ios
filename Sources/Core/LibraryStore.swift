@@ -48,6 +48,14 @@ final class LibraryStore: ObservableObject {
 
     // MARK: - Smart shelves (dynamic, rule-based)
 
+    /// Distinct series names present in the library (sorted).
+    var seriesNames: [String] {
+        var seen = Set<String>(); var out: [String] = []
+        for b in books { if let s = b.series, !seen.contains(s) { seen.insert(s); out.append(s) } }
+        return out.sorted()
+    }
+    func books(inSeries name: String) -> [Book] { books.filter { $0.series == name } }
+
     /// Books matching a rule, computed live from the library (no stored membership).
     func books(matching rule: SmartRule) -> [Book] {
         switch rule {
@@ -119,7 +127,7 @@ final class LibraryStore: ObservableObject {
             }
         }
 
-        let book = Book(id: id, title: parsed.title, author: parsed.author,
+        let book = Book(id: id, title: parsed.title, author: parsed.author, series: parsed.series,
                         fileName: fileName, coverFileName: coverFileName, addedAt: Date())
         books.insert(book, at: 0)
         save()

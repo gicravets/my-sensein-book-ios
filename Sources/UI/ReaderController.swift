@@ -104,6 +104,19 @@ final class ReaderController: NSObject, ObservableObject {
         return min(1, before / Double(totalBytes))
     }
 
+    /// Read-aloud writes its position into the shared reading progress (text↔audio sync).
+    func applyAudioPosition(chapter: Int, fraction: Double) {
+        store.updateProgress(bookID: bookID, chapter: chapter, fraction: fraction,
+                             progress: overallFor(chapter: chapter, fraction: fraction))
+    }
+
+    /// Byte-weighted overall progress for an arbitrary chapter+fraction (used by read-aloud).
+    func overallFor(chapter: Int, fraction: Double) -> Double {
+        guard spineBytes.indices.contains(chapter) else { return fraction }
+        let before = Double(prefixBytes[chapter]) + fraction * Double(spineBytes[chapter])
+        return min(1, before / Double(totalBytes))
+    }
+
     private var lastTypoSig = ""
 
     /// Estimated page numbers. Total is computed once per typography setting (stable

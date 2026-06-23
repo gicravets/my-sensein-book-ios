@@ -22,11 +22,15 @@ struct ReaderView: View {
             speech.toggle()
         } else {
             var ch = controller.chapterIndex
-            speech.nextChapterText = {
+            speech.nextChapter = {
                 ch += 1
-                return ch < controller.chapterCount ? controller.chapterText(ch) : nil
+                return ch < controller.chapterCount ? (controller.chapterText(ch), ch) : nil
             }
-            speech.start(text: controller.chapterText(controller.chapterIndex), title: controller.bookTitle)
+            speech.onProgress = { chapter, frac in
+                controller.applyAudioPosition(chapter: chapter, fraction: frac)
+            }
+            speech.start(text: controller.chapterText(controller.chapterIndex),
+                         chapter: controller.chapterIndex, title: controller.bookTitle)
         }
     }
 
@@ -93,7 +97,7 @@ struct ReaderView: View {
                     .presentationDetents([.height(260)])
             }
         }
-        .onDisappear { controller.saveProgress(); speech.stop() }
+        .onDisappear { if !speech.active { controller.saveProgress() }; speech.stop() }
     }
 
     private func handleZoneTap(_ fraction: CGFloat) {

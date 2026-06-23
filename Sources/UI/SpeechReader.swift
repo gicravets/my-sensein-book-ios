@@ -12,8 +12,11 @@ final class SpeechReader: NSObject, ObservableObject {
 
     private let synth = AVSpeechSynthesizer()
     private var title = ""
-    /// Provides the next chapter's text when the current one finishes; nil ends the session.
-    var nextChapterText: (() -> String?)?
+    private(set) var currentChapter = 0
+    /// Provides the next chapter (text + index) when the current finishes; nil ends the session.
+    var nextChapter: (() -> (text: String, chapter: Int)?)?
+    /// Reports the read-aloud position (chapter, fraction 0…1) so it shares one reading position.
+    var onProgress: ((Int, Double) -> Void)?
 
     override init() {
         super.init()
@@ -21,8 +24,9 @@ final class SpeechReader: NSObject, ObservableObject {
         setupRemoteCommands()
     }
 
-    func start(text: String, title: String) {
+    func start(text: String, chapter: Int, title: String) {
         self.title = title
+        self.currentChapter = chapter
         configureSession()
         synth.stopSpeaking(at: .immediate)
         active = true
@@ -52,7 +56,7 @@ final class SpeechReader: NSObject, ObservableObject {
     private func speak(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
-            if let next = nextChapterText?() { speak(next) } else { stop() }
+            if let n = nextChapter?() { currentChapter = n.chapter; speak(n.text) } else { stop() }
             return
         }
         let u = AVSpeechUtterance(string: trimmed)
@@ -88,15 +92,21 @@ extension SpeechReader: AVSpeechSynthesizerDelegate {
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
                                        willSpeakRangeOfSpeechString characterRange: NSRange,
                                        utterance: AVSpeechUtterance) {
-        let word = (utterance.speechString as NSString).substring(with: characterRange)
-        Task { @MainActor in self.currentWord = word }
+        let str = utterance.speechString as NSString
+        let word = str.substring(with: characterRange)
+        let frac = str.length > 0 ? Double(characterRange.location + characterRange.length) / Double(str.length) : 0
+        Task { @MainActor in
+            self.currentWord = word
+            self.onProgress?(self.currentChapter, frac)
+        }
     }
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
                                        didFinish utterance: AVSpeechUtterance) {
         Task { @MainActor in
-            if let next = self.nextChapterText?(), !next.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                self.speak(next)
+            if let n = self.nextChapter?(), !n.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                self.currentChapter = n.chapter
+                self.speak(n.text)
             } else {
                 self.stop()
             }

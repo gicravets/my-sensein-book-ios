@@ -127,6 +127,36 @@ struct APIClient {
         return try JSONDecoder().decode(UploadResult.self, from: data)
     }
 
+    // --- library sync delta (sync-point) + file download ---
+
+    struct SyncBook: Decodable {
+        let id: String
+        let title: String
+        let authors: [String]
+        let fileHash: String?
+    }
+    struct SyncDeltaResult: Decodable {
+        let serverTime: String
+        let books: [SyncBook]
+        let removed: [String]
+    }
+
+    func syncDelta(since: String?) async throws -> SyncDeltaResult {
+        var path = "/api/v1/sync"
+        if let since, !since.isEmpty {
+            let q = since.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? since
+            path += "?since=" + q
+        }
+        return try await send(request(path), as: SyncDeltaResult.self)
+    }
+
+    func downloadBookFile(id: String) async throws -> Data {
+        let (data, resp) = try await URLSession.shared.data(for: request("/api/v1/books/\(id)/file"))
+        let code = (resp as? HTTPURLResponse)?.statusCode ?? 0
+        guard (200..<300).contains(code) else { throw APIError.badResponse(code) }
+        return data
+    }
+
     // --- server setup / version / update ---
 
     func getSetup() async throws -> ServerSetup {

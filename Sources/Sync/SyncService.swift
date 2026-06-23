@@ -4,7 +4,7 @@ import Foundation
 /// between the local library and the server. Books are matched by title+author.
 /// Newest-wins by lastReadAt. Precise chapter position + annotations: later.
 enum SyncService {
-    struct Result { var matched = 0; var pushed = 0; var pulled = 0; var annotations = 0; var uploaded = 0 }
+    struct Result { var matched = 0; var pushed = 0; var pulled = 0; var annotations = 0; var uploaded = 0; var downloaded = 0; var removedBooks = 0 }
 
     @MainActor
     static func sync(store: LibraryStore, config: ServerConfig) async throws -> Result {
@@ -95,6 +95,34 @@ enum SyncService {
                 store.setServerInfo(bookID: local.id, serverID: up.id, fileHash: up.fileHash)
                 result.uploaded += 1
             }
+        }
+
+        // library file sync: download server-only books + propagate removals (sync-point delta)
+        let syncPointKey = "library.syncPoint"
+        let since = UserDefaults.standard.string(forKey: syncPointKey)
+        if let delta = try? await client.syncDelta(since: since) {
+            let localHashes = Set(store.books.compactMap { $0.fileHash })
+            let localServerIDs = Set(store.books.compactMap { $0.serverID })
+            for sb in delta.books {
+                if let h = sb.fileHash, localHashes.contains(h) { continue } // already have these bytes
+                if localServerIDs.contains(sb.id) { continue }               // already linked
+                guard let data = try? await client.downloadBookFile(id: sb.id) else { continue }
+                let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("\(sb.id).epub")
+                do {
+                    try data.write(to: tmp)
+                    let book = try store.importBook(from: tmp)
+                    store.setServerInfo(bookID: book.id, serverID: sb.id, fileHash: sb.fileHash)
+                    result.downloaded += 1
+                } catch {}
+                try? FileManager.default.removeItem(at: tmp)
+            }
+            for rid in delta.removed {
+                if let b = store.books.first(where: { $0.serverID == rid }) {
+                    store.delete(b)
+                    result.removedBooks += 1
+                }
+            }
+            UserDefaults.standard.set(delta.serverTime, forKey: syncPointKey)
         }
 
         // reader preferences (theme / font / mode) — newest-wins, applied on next reader open

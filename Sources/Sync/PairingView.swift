@@ -97,7 +97,7 @@ struct PairingView: View {
         defer { busy = false }
         do {
             let r = try await SyncService.sync(store: store, config: config)
-            syncInfo = "Совпало: \(r.matched) · ↑\(r.pushed) ↓\(r.pulled) · аннотаций: \(r.annotations)"
+            syncInfo = "Совпало: \(r.matched) · ↑\(r.pushed) ↓\(r.pulled) · аннотаций: \(r.annotations) · загружено: \(r.uploaded)"
         } catch { self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription }
     }
 

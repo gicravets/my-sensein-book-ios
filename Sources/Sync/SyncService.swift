@@ -4,7 +4,7 @@ import Foundation
 /// between the local library and the server. Books are matched by title+author.
 /// Newest-wins by lastReadAt. Precise chapter position + annotations: later.
 enum SyncService {
-    struct Result { var matched = 0; var pushed = 0; var pulled = 0; var annotations = 0 }
+    struct Result { var matched = 0; var pushed = 0; var pulled = 0; var annotations = 0; var uploaded = 0 }
 
     @MainActor
     static func sync(store: LibraryStore, config: ServerConfig) async throws -> Result {
@@ -84,6 +84,16 @@ enum SyncService {
                     chapterIndex: loc["c"].map { Int($0) } ?? 0,
                     fraction: loc["f"] ?? 0, label: label))
                 result.annotations += 1
+            }
+        }
+
+        // library file sync: upload local books not yet on the server (server dedups by hash)
+        for local in store.books where local.serverID == nil {
+            let url = local.fileURL
+            guard FileManager.default.fileExists(atPath: url.path) else { continue }
+            if let up = try? await client.uploadBook(fileURL: url, fileName: url.lastPathComponent) {
+                store.setServerInfo(bookID: local.id, serverID: up.id, fileHash: up.fileHash)
+                result.uploaded += 1
             }
         }
 

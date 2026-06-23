@@ -46,6 +46,10 @@ struct Book: Identifiable, Codable, Equatable {
     var bookmarks: [Bookmark] = []
     var highlights: [Highlight] = []
 
+    // Library sync (file synced to the server)
+    var serverID: String? = nil       // id of this book on the server (set after upload)
+    var fileHash: String? = nil       // server's content hash (dedup / reconcile)
+
     var fileURL: URL { AppPaths.books.appendingPathComponent(fileName) }
     var coverURL: URL? { coverFileName.map { AppPaths.covers.appendingPathComponent($0) } }
 }
@@ -58,6 +62,7 @@ extension Book {
         case id, title, author, fileName, coverFileName, addedAt
         case chapterIndex, chapterFraction, progress, lastReadAt
         case shelf, isFinished, bookmarks, highlights
+        case serverID, fileHash
     }
 
     init(from decoder: Decoder) throws {
@@ -76,6 +81,8 @@ extension Book {
         isFinished = try c.decodeIfPresent(Bool.self, forKey: .isFinished) ?? false
         bookmarks = try c.decodeIfPresent([Bookmark].self, forKey: .bookmarks) ?? []
         highlights = try c.decodeIfPresent([Highlight].self, forKey: .highlights) ?? []
+        serverID = try c.decodeIfPresent(String.self, forKey: .serverID)
+        fileHash = try c.decodeIfPresent(String.self, forKey: .fileHash)
     }
 }
 

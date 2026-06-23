@@ -69,6 +69,14 @@ final class LibraryStore: ObservableObject {
         save()
     }
 
+    /// Record that a book has been uploaded to the server (id + content hash).
+    func setServerInfo(bookID: UUID, serverID: String, fileHash: String?) {
+        guard let i = books.firstIndex(where: { $0.id == bookID }) else { return }
+        books[i].serverID = serverID
+        books[i].fileHash = fileHash
+        save()
+    }
+
     // MARK: - First-run sample
 
     private func importSampleIfNeeded() {

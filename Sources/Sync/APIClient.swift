@@ -102,6 +102,31 @@ struct APIClient {
         _ = try await send(request("/api/v1/preferences", method: "PUT", body: body), as: RemotePrefs.self)
     }
 
+    // --- library file sync: upload a book file (multipart); server dedups by hash ---
+
+    struct UploadResult: Decodable { let id: String; let fileHash: String? }
+
+    func uploadBook(fileURL: URL, fileName: String) async throws -> UploadResult {
+        let boundary = "Boundary-\(UUID().uuidString)"
+        var r = URLRequest(url: URL(string: baseURL + "/api/v1/books")!)
+        r.httpMethod = "POST"
+        if let key = apiKey { r.setValue(key, forHTTPHeaderField: "X-API-Key") }
+        r.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        r.timeoutInterval = 60
+        let fileData = try Data(contentsOf: fileURL)
+        var body = Data()
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(fileName)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: application/octet-stream\r\n\r\n".data(using: .utf8)!)
+        body.append(fileData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        r.httpBody = body
+        let (data, resp) = try await URLSession.shared.data(for: r)
+        let code = (resp as? HTTPURLResponse)?.statusCode ?? 0
+        guard (200..<300).contains(code) else { throw APIError.badResponse(code) }
+        return try JSONDecoder().decode(UploadResult.self, from: data)
+    }
+
     // --- server setup / version / update ---
 
     func getSetup() async throws -> ServerSetup {

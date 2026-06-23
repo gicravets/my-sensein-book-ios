@@ -30,6 +30,8 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         NSCameraUsageDescription: "Сканирование QR-кода для привязки к серверу"
+        UIBackgroundModes:
+          - audio
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
     settings:

@@ -14,6 +14,21 @@ struct ReaderView: View {
     @State private var showSearch = false
     @State private var bookmarkPulse = false
     @State private var seekPreview: Double? = nil
+    @StateObject private var speech = SpeechReader()
+
+    /// Start read-aloud from the current chapter, continuing through the book.
+    private func toggleSpeech() {
+        if speech.active {
+            speech.toggle()
+        } else {
+            var ch = controller.chapterIndex
+            speech.nextChapterText = {
+                ch += 1
+                return ch < controller.chapterCount ? controller.chapterText(ch) : nil
+            }
+            speech.start(text: controller.chapterText(controller.chapterIndex), title: controller.bookTitle)
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -78,7 +93,7 @@ struct ReaderView: View {
                     .presentationDetents([.height(260)])
             }
         }
-        .onDisappear { controller.saveProgress() }
+        .onDisappear { controller.saveProgress(); speech.stop() }
     }
 
     private func handleZoneTap(_ fraction: CGFloat) {
@@ -170,6 +185,14 @@ struct ReaderView: View {
             // only (a) fades in the two side buttons (bare, on the page) at that same
             // level and (b) floats the scroll panel separately above.
             VStack(spacing: 14) {
+                if speech.active && !speech.currentWord.isEmpty {
+                    Text(speech.currentWord)
+                        .font(.headline).foregroundStyle(controller.theme.fgColor)
+                        .padding(.horizontal, 16).padding(.vertical, 8)
+                        .background(controller.theme.bgColor.opacity(0.9), in: Capsule())
+                        .overlay(Capsule().stroke(controller.theme.fgColor.opacity(0.15), lineWidth: 1))
+                        .transition(.opacity)
+                }
                 if miniVisible {
                     scrollPanel.transition(.move(edge: .bottom).combined(with: .opacity))
                 }
@@ -360,6 +383,11 @@ struct ReaderView: View {
             barButton("list.bullet", "Содержание") { showContents = true }
             barButton("slider.horizontal.3", "Настройки") { showSettings = true }
             barButton("magnifyingglass", "Поиск") { showSearch = true }
+            barButton(speech.active && speech.isSpeaking ? "pause.fill" : "headphones",
+                      speech.active ? (speech.isSpeaking ? "Пауза" : "Дальше") : "Вслух") { toggleSpeech() }
+            if speech.active {
+                barButton("stop.fill", "Стоп") { speech.stop() }
+            }
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 6)

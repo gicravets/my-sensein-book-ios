@@ -16,6 +16,11 @@ final class ReaderController: NSObject, ObservableObject {
     private let store: LibraryStore
     private lazy var index = SearchIndex(epub: epub)
 
+    // Read-aloud (TTS) helpers: plain text per chapter + chapter count.
+    var chapterCount: Int { epub.spine.count }
+    func chapterText(_ i: Int) -> String { index.text(for: i) }
+    var bookTitle: String { store.book(id: bookID)?.title ?? "Книга" }
+
     @Published var chapterIndex: Int
     @Published var page: Int = 0
     @Published var pageCount: Int = 1

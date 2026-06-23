@@ -21,6 +21,14 @@ final class ReaderController: NSObject, ObservableObject {
     func chapterText(_ i: Int) -> String { index.text(for: i) }
     var bookTitle: String { store.book(id: bookID)?.title ?? "Книга" }
 
+    // EPUB3 Media Overlays (human-narrated audio synced to text).
+    var hasMediaOverlay: Bool { epub.hasMediaOverlay(spine: chapterIndex) }
+    func mediaOverlayClips(forChapter i: Int) -> [MOClip] { epub.mediaOverlayClips(forSpine: i) }
+    func audioURL(forHref href: String) -> URL { epub.fileURL(forHref: href) }
+    func highlightFragment(_ id: String) {
+        webView?.evaluateJavaScript("window.__moHighlight&&window.__moHighlight(\(jsString(id)))")
+    }
+
     @Published var chapterIndex: Int
     @Published var page: Int = 0
     @Published var pageCount: Int = 1
@@ -450,6 +458,14 @@ final class ReaderController: NSObject, ObservableObject {
           window.__removeHighlight=function(id){
             var ms=col.querySelectorAll('[data-hl="'+id+'"]');
             for(var i=0;i<ms.length;i++){ var m=ms[i]; while(m.firstChild) m.parentNode.insertBefore(m.firstChild, m); m.parentNode.removeChild(m); }
+          };
+          // Media Overlays: highlight the spoken sentence (<span id>) and scroll it into view.
+          window.__moHighlight=function(id){
+            if(window.__moEl){ window.__moEl.style.backgroundColor=''; window.__moEl.style.borderRadius=''; }
+            var el=id?d.getElementById(id):null;
+            if(el){ el.style.backgroundColor='rgba(177,78,224,0.28)'; el.style.borderRadius='3px';
+                    try{ el.scrollIntoView({block:'center'}); }catch(e){ el.scrollIntoView(); } }
+            window.__moEl=el;
           };
           window.__addHighlight=function(color, id){
             var sel=window.getSelection(); if(!sel.rangeCount || sel.isCollapsed) return null;

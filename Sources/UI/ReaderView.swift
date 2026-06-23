@@ -15,6 +15,45 @@ struct ReaderView: View {
     @State private var bookmarkPulse = false
     @State private var seekPreview: Double? = nil
     @StateObject private var speech = SpeechReader()
+    @StateObject private var mo = MediaOverlayPlayer()
+
+    private var audioActive: Bool { mo.active || speech.active }
+    private var audioPlaying: Bool { mo.isPlaying || speech.isSpeaking }
+
+    /// One "read aloud" control: play the human narration (Media Overlays) when the book
+    /// has it, otherwise fall back to on-device TTS.
+    private func toggleAudio() {
+        if controller.hasMediaOverlay {
+            if mo.active { mo.toggle() } else { startMediaOverlay() }
+        } else {
+            toggleSpeech()
+        }
+    }
+
+    private func stopAudio() {
+        speech.stop(); mo.stop()
+        mo.onFragment = nil; mo.onProgress = nil; mo.onFinished = nil  // break the callback retain cycle
+    }
+
+    private func startMediaOverlay() {
+        var ch = controller.chapterIndex
+        let resolve: (String) -> URL = { controller.audioURL(forHref: $0) }
+        mo.onFragment = { controller.highlightFragment($0) }
+        mo.onProgress = { frac in controller.applyAudioPosition(chapter: ch, fraction: frac) }
+        mo.onFinished = {
+            controller.highlightFragment("")
+            ch += 1
+            while ch < controller.chapterCount {
+                let next = controller.mediaOverlayClips(forChapter: ch)
+                if !next.isEmpty {
+                    mo.start(clips: next, resolve: resolve, title: controller.bookTitle)
+                    return
+                }
+                ch += 1
+            }
+        }
+        mo.start(clips: controller.mediaOverlayClips(forChapter: ch), resolve: resolve, title: controller.bookTitle)
+    }
 
     /// Start read-aloud from the current chapter, continuing through the book.
     private func toggleSpeech() {
@@ -97,7 +136,7 @@ struct ReaderView: View {
                     .presentationDetents([.height(260)])
             }
         }
-        .onDisappear { if !speech.active { controller.saveProgress() }; speech.stop() }
+        .onDisappear { if !audioActive { controller.saveProgress() }; stopAudio() }
     }
 
     private func handleZoneTap(_ fraction: CGFloat) {
@@ -387,10 +426,11 @@ struct ReaderView: View {
             barButton("list.bullet", "Содержание") { showContents = true }
             barButton("slider.horizontal.3", "Настройки") { showSettings = true }
             barButton("magnifyingglass", "Поиск") { showSearch = true }
-            barButton(speech.active && speech.isSpeaking ? "pause.fill" : "headphones",
-                      speech.active ? (speech.isSpeaking ? "Пауза" : "Дальше") : "Вслух") { toggleSpeech() }
-            if speech.active {
-                barButton("stop.fill", "Стоп") { speech.stop() }
+            barButton(audioPlaying ? "pause.fill" : "headphones",
+                      audioActive ? (audioPlaying ? "Пауза" : "Дальше")
+                                  : (controller.hasMediaOverlay ? "Слушать" : "Вслух")) { toggleAudio() }
+            if audioActive {
+                barButton("stop.fill", "Стоп") { stopAudio() }
             }
         }
         .padding(.vertical, 10)

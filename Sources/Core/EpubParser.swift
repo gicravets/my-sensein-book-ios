@@ -1,7 +1,16 @@
 import Foundation
 
 struct SpineItem {
-    let href: String          // relative to the OPF directory
+    let href: String                  // relative to the OPF directory
+    var mediaOverlayHref: String? = nil  // SMIL for this doc (EPUB3 Media Overlays), if any
+}
+
+/// One synced text↔audio clip from a Media Overlay SMIL (<par>).
+struct MOClip {
+    let fragmentID: String   // id of the <span> in the text doc
+    let audioHref: String    // audio file href (relative to the OPF dir)
+    let begin: Double        // seconds
+    let end: Double
 }
 
 struct TocEntry: Identifiable {
@@ -27,6 +36,42 @@ struct ParsedEpub {
         let decoded = path.removingPercentEncoding ?? path
         return opfDir.appendingPathComponent(decoded)
     }
+
+    /// True when this chapter ships an EPUB3 Media Overlay (human-narrated audio synced to text).
+    func hasMediaOverlay(spine index: Int) -> Bool {
+        spine.indices.contains(index) && spine[index].mediaOverlayHref != nil
+    }
+
+    /// Parsed <par> clips (fragment id ↔ audio clip times) for a chapter's Media Overlay.
+    func mediaOverlayClips(forSpine index: Int) -> [MOClip] {
+        guard spine.indices.contains(index), let smilHref = spine[index].mediaOverlayHref,
+              let data = try? Data(contentsOf: fileURL(forHref: smilHref)),
+              let smil = XMLTreeBuilder().parse(data) else { return [] }
+        let smilDir = (smilHref as NSString).deletingLastPathComponent
+        var clips: [MOClip] = []
+        for par in smil.descendants("par") {
+            guard let text = par.descendants("text").first,
+                  let audio = par.descendants("audio").first,
+                  let src = text.attributes["src"],
+                  let audioSrc = audio.attributes["src"] else { continue }
+            let fid = src.components(separatedBy: "#").last ?? ""
+            let audioHref = smilDir.isEmpty ? audioSrc : (smilDir as NSString).appendingPathComponent(audioSrc)
+            clips.append(MOClip(fragmentID: fid, audioHref: audioHref,
+                                begin: moClock(audio.attributes["clipBegin"]),
+                                end: moClock(audio.attributes["clipEnd"])))
+        }
+        return clips
+    }
+}
+
+/// Parse a SMIL clock value ("12.500s" or "00:01:02.5" or "12.5") into seconds.
+func moClock(_ s: String?) -> Double {
+    guard var v = s?.trimmingCharacters(in: .whitespaces) else { return 0 }
+    if v.hasSuffix("s") { v = String(v.dropLast()) }
+    if v.contains(":") {
+        return v.split(separator: ":").reduce(0.0) { $0 * 60 + (Double($1) ?? 0) }
+    }
+    return Double(v) ?? 0
 }
 
 enum EpubError: Error { case badArchive, noOpf }
@@ -67,11 +112,13 @@ enum EpubParser {
         let coverMetaId = package.descendants("meta")
             .first { $0.attributes["name"] == "cover" }?.attributes["content"]
 
+        var itemMO: [String: String] = [:]   // content-item id -> media-overlay (SMIL) item id
         for item in package.descendants("item") {
             guard let id = item.attributes["id"], let href = item.attributes["href"] else { continue }
             let type = item.attributes["media-type"] ?? ""
             let props = item.attributes["properties"] ?? ""
             manifest[id] = (href, type, props)
+            if let mo = item.attributes["media-overlay"] { itemMO[id] = mo }
             if props.contains("nav") { navHref = href }
             if props.contains("cover-image") { coverHref = href }
             if id == coverMetaId, coverHref == nil { coverHref = href }
@@ -88,7 +135,8 @@ enum EpubParser {
             if let tocId = spineNode.attributes["toc"] { ncxHref = manifest[tocId]?.href }
             for itemref in spineNode.descendants("itemref") {
                 guard let idref = itemref.attributes["idref"], let m = manifest[idref] else { continue }
-                spine.append(SpineItem(href: m.href))
+                let smilHref = itemMO[idref].flatMap { manifest[$0]?.href }
+                spine.append(SpineItem(href: m.href, mediaOverlayHref: smilHref))
             }
         }
 

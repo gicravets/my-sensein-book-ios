@@ -16,6 +16,7 @@
 		3CAC146551FCDCBEF8AD14B4 /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC29FEDE10C6E13315802B5E /* Book.swift */; };
 		5A35402C32BF562B6CB9A7EE /* ServerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C15786A4BE1753685B9324A /* ServerConfig.swift */; };
 		5B6FD4E344C3D6B512C4E370 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E824950DB329927DA2B9FA66 /* LibraryView.swift */; };
+		5C44D577CB93837907BD81AE /* MediaOverlayPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CDA42A1E8F50C293EBE20C4 /* MediaOverlayPlayer.swift */; };
 		7270DB5DE806E79CD5E1B022 /* BookParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1974773084076A267F34A997 /* BookParser.swift */; };
 		7988FCFCC6011987C9DFBD03 /* Sample2.fb2 in Resources */ = {isa = PBXBuildFile; fileRef = 65BFD234522FF04EED853673 /* Sample2.fb2 */; };
 		7CFFCC64A028FCA6BA5D5AD1 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FD0BE608E50CF4A8E479FB6 /* Keychain.swift */; };
@@ -66,6 +67,7 @@
 		76928F97D6B9A11205A2D5D5 /* AnnotationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationsView.swift; sourceTree = "<group>"; };
 		7F77079E82224E71885B1EA1 /* my-sensein-book.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "my-sensein-book.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		98F4507F3402ECADEB2000F5 /* RateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateView.swift; sourceTree = "<group>"; };
+		9CDA42A1E8F50C293EBE20C4 /* MediaOverlayPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaOverlayPlayer.swift; sourceTree = "<group>"; };
 		9D218D5C79982F3DE4F783F2 /* EpubParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpubParser.swift; sourceTree = "<group>"; };
 		A1CD8CFC7369B1E46A9CD92C /* SpeechReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechReader.swift; sourceTree = "<group>"; };
 		A74C0C65FBEA0C3064E8276D /* ReaderScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderScreen.swift; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@
 				E8C7ADE8974F56B3664CAF2C /* CoverView.swift */,
 				0E655CB6D519005318A3B0E2 /* CurlReaderView.swift */,
 				E824950DB329927DA2B9FA66 /* LibraryView.swift */,
+				9CDA42A1E8F50C293EBE20C4 /* MediaOverlayPlayer.swift */,
 				98F4507F3402ECADEB2000F5 /* RateView.swift */,
 				2325860FB5FDCE2D47DE4EE3 /* ReaderController.swift */,
 				A74C0C65FBEA0C3064E8276D /* ReaderScreen.swift */,
@@ -264,6 +267,7 @@
 				7CFFCC64A028FCA6BA5D5AD1 /* Keychain.swift in Sources */,
 				881A52793CA2EDE24828FA6D /* LibraryStore.swift in Sources */,
 				5B6FD4E344C3D6B512C4E370 /* LibraryView.swift in Sources */,
+				5C44D577CB93837907BD81AE /* MediaOverlayPlayer.swift in Sources */,
 				88623905D3796A8FD047400D /* MiniZip.swift in Sources */,
 				915A7518C505F78FBDFCF64E /* MySenseinBookApp.swift in Sources */,
 				C4C59DCD8FC163B8CAA9DFD6 /* PairingView.swift in Sources */,
